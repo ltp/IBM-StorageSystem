@@ -36,7 +36,7 @@ use IBM::StorageSystem::Statistic::Node::CPU;
 use Net::OpenSSH;
 use Carp qw(croak);
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 our @ATTR = qw(auth_service_cert_set auth_service_configured auth_service_enabled 
 auth_service_pwd_set auth_service_type auth_service_url auth_service_user_name 
