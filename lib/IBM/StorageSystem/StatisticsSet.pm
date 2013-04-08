@@ -33,7 +33,7 @@ sub __last {
 
 sub min {
 	my( $self, $value ) = @_;
-	grep { /$value/ } $self->first->_values or return undef;
+	grep { /$value/ } $self->__first->_values or return undef;
 	defined $self->{_data}->{$value} or $self->_sort( $value );
 
 	return wantarray	? @{ $self->{_data}->{$value} }
@@ -56,7 +56,7 @@ sub _sort {
 
 sub values {
 	my $self = shift;
-	return $self->first->_values;
+	return $self->__first->_values;
 }
 
 1;
