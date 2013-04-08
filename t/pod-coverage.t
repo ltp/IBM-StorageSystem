@@ -16,7 +16,7 @@ if ( $@ ) {
 	plan skip_all => "Pod::Coverage $min_pc required for testing POD coverage"
 }
 else {
-	plan tests => 38 
+	plan tests => 42
 }
 
 pod_coverage_ok( 'IBM::StorageSystem',				{ also_private => [ 'export', 'get_export', 'fabric', 'get_fabric',
@@ -41,6 +41,7 @@ pod_coverage_ok( 'IBM::StorageSystem::Interface',		{ also_private => [ 'new', 'n
 pod_coverage_ok( 'IBM::StorageSystem::IOGroup',			{ also_private => [ 'new' ] } );
 pod_coverage_ok( 'IBM::StorageSystem::Mount',			{ also_private => [ 'new' ] } );
 pod_coverage_ok( 'IBM::StorageSystem::Node',			{ also_private => [ 'new' ] } );
+pod_coverage_ok( 'IBM::StorageSystem::Pool',			{ also_private => [ 'new', 'filesystem:name' ] } );
 pod_coverage_ok( 'IBM::StorageSystem::Service',			{ also_private => [ 'new' ] } );
 pod_coverage_ok( 'IBM::StorageSystem::Snapshot',		{ also_private => [ 'new' ] } );
 pod_coverage_ok( 'IBM::StorageSystem::Statistic',		{ also_private => [ 'new' ] } );
@@ -52,8 +53,11 @@ pod_coverage_ok( 'IBM::StorageSystem::Statistic::ClusterOpenCloseLatency',	{ als
 pod_coverage_ok( 'IBM::StorageSystem::Statistic::ClusterOpenCloseOperations',	{ also_private => [ 'new' ] } );
 pod_coverage_ok( 'IBM::StorageSystem::Statistic::ClusterReadWriteLatency',	{ also_private => [ 'new' ] } );
 pod_coverage_ok( 'IBM::StorageSystem::Statistic::ClusterReadWriteOperations',	{ also_private => [ 'new' ] } );
+pod_coverage_ok( 'IBM::StorageSystem::Statistic::Node::DiskRead',	{ also_private => [ 'new' ] } );
+pod_coverage_ok( 'IBM::StorageSystem::Statistic::Node::DiskWrite',	{ also_private => [ 'new' ] } );
 pod_coverage_ok( 'IBM::StorageSystem::Statistic::Node::CPU',	{ also_private => [ 'new' ] } );
 pod_coverage_ok( 'IBM::StorageSystem::Statistic::Node::Memory',	{ also_private => [ 'new' ] } );
+pod_coverage_ok( 'IBM::StorageSystem::Statistic::Pool::Throughput',	{ also_private => [ 'new' ] } );
 pod_coverage_ok( 'IBM::StorageSystem::StatisticsSet',		{ also_private => [ 'new' ] } );
 pod_coverage_ok( 'IBM::StorageSystem::Task',			{ also_private => [ 'new' ] } );
 pod_coverage_ok( 'IBM::StorageSystem::Quota',			{ also_private => [ 'new' ] } );
