@@ -4,6 +4,9 @@ use strict;
 use warnings;
 
 use IBM::StorageSystem::Statistic::Node::Memory;
+use IBM::StorageSystem::Statistic::Node::CPU;
+use IBM::StorageSystem::Statistic::Node::DiskRead;
+use IBM::StorageSystem::Statistic::Node::DiskWrite;
 use Carp qw(croak);
 use Scalar::Util qw(weaken);
 
@@ -18,14 +21,13 @@ our @ATTR = qw(	CTDB_status	connection_status	CTDB_IP_address		daemon_IP_address
 
 foreach my $attr ( @ATTR ) { 
 	{   
-	no strict 'refs';
-	*{ __PACKAGE__ .'::'. $attr } = 
-	sub {
-		my( $self, $val ) = @_;
-		$val =~ s/\#/no/ if $val;
-		$self->{$attr} = $val if $val;
-		return $self->{$attr}
-	}   
+		no strict 'refs';
+		*{ __PACKAGE__ .'::'. $attr } =	sub {
+			my( $self, $val ) = @_;
+			$val =~ s/\#/no/ if $val;
+			$self->{$attr} = $val if $val;
+			return $self->{$attr}
+		}   
 	}   
 }
 
@@ -42,20 +44,60 @@ our $STATS = {
 
 foreach my $stat ( keys %{ $STATS } ) {
 	{
+		no strict 'refs';
+		*{ __PACKAGE__ .'::'. $stat } = sub {
+			my( $self, $t ) = @_;
+			$t ||= 'minute';
+			my $stats = $self->{__ibm}->__lsperfdata( 
+						cmd   => "$STATS->{$stat}->{cmd} -t $t -n $self->{hostname}",
+						class => $STATS->{$stat}->{class}
+							);
+			return $stats
+		}
+	}
+}
+
+foreach my $m qw(reads writes) {
+	{
 	no strict 'refs';
-	*{ __PACKAGE__ .'::'. $stat } = 
-	sub {
+	*{ __PACKAGE__ .'::disk_'. $m } = sub {
 		my( $self, $t ) = @_;
 		$t ||= 'minute';
-		my $stats = $self->{__ibm}->__lsperfdata( cmd   => "$STATS->{$stat}->{cmd} -t $t -n $self->{hostname}",
-							  class => $STATS->{$stat}->{class} 
-							);
+		my $stats = IBM::StorageSystem::StatisticsSet->new;
+		my( $headers, @stats ) = split( /\n/, 
+			$self->{__ibm}->__cmd( "lsperfdata -g disk_$m -t $t -n $self->{hostname}" ) );
+		# disk_reads and disk_writes perfdata stats use non-parsable CSV for the column headers
+		# This neccesitates the ugliness below
+		pop @stats;
+		my @cols = split /\[#\]/, $headers;
+		my @f = ( split /,/, shift @cols )[0,1,3];
+		
+		for ( @cols ) { push @f, ( split /,/ )[2] }
+
+		@cols = map {	s/^ *//; 
+				s/ *$//; 
+				s/ /_/g; 
+				s/-/_/g; 
+				lc($_) 
+			} @f;
+
+		foreach my $stat ( @stats ) {
+			my @values = split /,/, $stat;
+			( my $m = 'IBM::StorageSystem::Statistic::Node::Disk' . ucfirst $m ) =~ s/s$//;
+			my $s = $m->new;
+			my $c = 0;
+
+			foreach my $col ( @cols ) {
+				$s->$col( $values[$c++] ); 
+			}
+
+			$stats->__push( $s )
+		}
+
 		return $stats
 	}
 	}
 }
-
-
 
 sub new {
         my( $class, $ibm, %args ) = @_; 
@@ -97,7 +139,8 @@ IBM::StorageSystem::Node is a utility class for operations with a IBM StorageSys
 
         use IBM::StorageSystem;
         
-        my $ibm = IBM::StorageSystem->new(      user            => 'admin',
+        my $ibm = IBM::StorageSystem->new(      
+					user            => 'admin',
                                         host            => 'my-v7000',
                                         key_path        => '/path/to/my/.ssh/private_key'
                                 ) or die "Couldn't create object! $!\n";
@@ -138,10 +181,13 @@ Returns the connection status of the specified node.
 
 Returns the CTDB IP address of the specified node.
 
-=head3 cpu
+=head3 cpu( $timeperiod )
 
 Returns a L<IBM::StorageSystem::Statistic::Node::CPU> object containing CPU statistics
-and performance data for the specified node.
+and performance data for the specified node for the specified time period.
+
+Valid values for the timeperiod parameter are one of minute, hour, day, week, month, quarter 
+and year - if the timeperiod parameter is not specified it will default to minute.
 
 =head3 daemon_IP_address
 
@@ -154,6 +200,26 @@ Returns the daemon version number.
 =head3 description
 
 Returns the node description.
+
+=head3 disk_reads( $time_period )
+
+Returns a L<IBM::StorageSystem::StatisticsSet> object containing a chronological set of 
+L<IBM::StorageSystem::Statistic::Node::DiskRead> objects, each of which represent a single
+performance measurement of read operations for all GPFS disks on the target node.
+
+The optional time period parameter specifies the period over which the performance data was 
+measured and may be one of minute, hour, day, week, month, quarter or year - if no time
+period is specified this value will default to minute.
+
+=head3 disk_writes( $time_period )
+
+Returns a L<IBM::StorageSystem::StatisticsSet> object containing a chronological set of 
+L<IBM::StorageSystem::Statistic::Node::DiskRead> objects, each of which represent a single
+performance measurement of write operations for all GPFS disks on the target node.
+
+The optional time period parameter specifies the period over which the performance data was 
+measured and may be one of minute, hour, day, week, month, quarter or year - if no time
+period is specified this value will default to minute.
 
 =head3 GPFS_status
 
@@ -183,10 +249,13 @@ Returns the quorum status of the specified node.
 
 Returns the time at which the CTDB status of the node was last updated.
 
-=head3 memory
+=head3 memory( $timperiod )
 
 Returns a L<IBM::StorageSystem::Statistics::Node::Memory> object containing memory
-statistics and performance data for the specified node.
+statistics and performance data for the specified node for the specified time period.
+
+Valid values for the timeperiod parameter are one of minute, hour, day, week, month, quarter 
+and year - if the timeperiod parameter is not specified it will default to minute.
 
 =head3 monitoring_enabled
 
