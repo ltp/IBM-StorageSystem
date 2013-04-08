@@ -16,6 +16,7 @@ use IBM::StorageSystem::Interface;
 use IBM::StorageSystem::IOGroup;
 use IBM::StorageSystem::Mount;
 use IBM::StorageSystem::Node;
+use IBM::StorageSystem::Pool;
 use IBM::StorageSystem::Replication;
 use IBM::StorageSystem::Service;
 use IBM::StorageSystem::Task;
@@ -33,10 +34,11 @@ use IBM::StorageSystem::Statistic::ClusterReadWriteLatency;
 use IBM::StorageSystem::Statistic::ClusterReadWriteOperations;
 use IBM::StorageSystem::Statistic::Node::Memory;
 use IBM::StorageSystem::Statistic::Node::CPU;
+use IBM::StorageSystem::Statistic::Pool::Throughput;
 use Net::OpenSSH;
 use Carp qw(croak);
 
-our $VERSION = '0.02';
+our $VERSION = '0.01';
 
 our @ATTR = qw(auth_service_cert_set auth_service_configured auth_service_enabled 
 auth_service_pwd_set auth_service_type auth_service_url auth_service_user_name 
@@ -333,6 +335,13 @@ our $OBJ = {	drive => {
 			type	=> 'interface',
 			sl	=> 1
 		},
+		pool => {
+			cmd	=> 'lspool -Y',
+			id	=> 'Filesystem:Name',
+			class	=> 'IBM::StorageSystem::Pool',
+			type	=> 'pool',
+			sl	=> 1
+		}
 	};
 
 foreach my $obj ( keys %{ $OBJ } ) {
@@ -497,14 +506,15 @@ sub __get_sl_objects {
 		
 		foreach my $val ( split /:/, $object ) {
 			$c++;
-			next if $headers[ $c - 1 ] =~ /^(lsnode|lsexport|lshealth|lsfs|Filesystem|SensorSummary|Share|CtdbHost|HEADER|reserved)$/;
+			next if $headers[ $c - 1 ] =~ /^(lsnode|lsexport|lshealth|lsfs|SensorSummary|Share|CtdbHost|HEADER|reserved)$/;
 			$a{ $headers[ $c - 1 ] } = $val
 		}
 
 		if ( $args{ id } =~ /:/ ) { 
 			my ($nid, $nval);
 
-			foreach my $id ( split /:/, $args{ id } ) { 
+			foreach my $id ( split /:/, $args{ id } ) {
+				print "id = $id, a{ id } = $a{ $id }\n";
 				$nid .= ":$id"; $nval .= ":$a{ $id }" 
 			}
 
@@ -1609,6 +1619,21 @@ This is a functionally equivalent non-caching implementation of the B<node> meth
         }
 
 Returns an array of L<IBM::StorageSystem::Node> objects representing all configured nodes on the target system.
+
+=head3 pool( $pool )
+
+Returns the pool identified by the value of the node parameter as a L<IBM::StorageSystem::Pool> object.
+
+B<Note> that this method implements caching and that a cached object will be returned if one is available.
+If you require a non-cached object, then please use the non-caching B<get_pool> method.
+
+=head3 get_pool( $pool )
+
+This is a functionally equivalent non-caching implementation of the B<pool> method.
+
+=head3 get_pools( $pool )
+
+Returns an array of L<IBM::StorageSystem::Pool> objects representing all configured pools on the target system.
 
 =head3 replication( $eventlog_id )
 
