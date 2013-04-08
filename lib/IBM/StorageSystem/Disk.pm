@@ -49,63 +49,46 @@ IBM::StorageSystem::Disk is a utility class for operations with IBM StorageSyste
 
         use IBM::StorageSystem;
         
-        my $ibm = IBM::StorageSystem->new(      user            => 'admin',
-                                        host            => 'my-v7000',
-                                        key_path        => '/path/to/my/.ssh/private_key'
+        my $ibm = IBM::StorageSystem->new(      
+				         user            => 'admin',
+                                         host            => 'my-v7000',
+                                         key_path        => '/path/to/my/.ssh/private_key'
                                 ) or die "Couldn't create object! $!\n";
 
-	# Get drive ID 2 as an IBM::StorageSystem::Drive object - note that drive ID 2 
-	# is not necessarily the physical disk in slot ID 2 - see notes below.
-	my $drive = $ibm->drive( 2 );
+	# Get disk ID system_vol_00 as an IBM::StorageSystem::Disk object.
+	my $disk = $ibm->disk( 'system_vol_01' );
 
-	# Print the drive capacity in bytes
-	print $drive->capacity;
-	
-	# Print the drive vendor and product IDs
-	print "Vendor ID: ", $drive->vendor_id, " - Product ID: ", $drive->product_id, "\n";
-	
-	# Print the SAS port status and drive status for all drives in a nicely formatted list
-	printf("%-20s%-20s%-20s%-20s\n", 'Drive', 'SAS Port 1 Status', 'SAS Port 2 Status', 'Status');
-	printf("%-20s%-20s%-20s%-20s\n", '-'x18, '-'x18, '-'x18, '-'x18);
-	map { printf( "%-20s%-20s%-20s%-20s\n", $_->id, $_->port_1_status, $_->port_2_status, $_->status) } $ibm->get_drives;
+	# Print the file system to which the disk is assigned
+	print $disk->file_system;
 
-	# e.g.
-	# Drive               SAS Port 1 Status   SAS Port 2 Status   Status              
+	# Prints "fs1"
+	
+	# Print the pool to which the disk is assigned
+	print "Disk pool: ", $disk->pool, "\n";
+
+	# Prints "Disk pool: system"
+	
+	# Print the availability and failure group for all disks in a nicely formatted list
+	printf("%-20s%-20s%-20s%-20s\n", 'File System', 'Disk', 'Availability', 'Failure Group');
+	printf("%-20s%-20s%-20s%-20s\n", '-'x18, '-'x18, '-'x18, '-'x18, '-'x18);
+
+	map { printf( "%-20s%-20s%-20s%-20s\n", 
+		$_->file_system,
+		$_->name,
+		$_->availability,
+		$_->failure_group) 
+	} $ibm->get_disks;
+
+	# Prints:
+	#
+	# File System         Disk                Availability        Failure Group       
 	# ------------------  ------------------  ------------------  ------------------  
-	# 0                   online              online              online              
-	# 1                   online              online              online              
-	# 2                   online              online              online              
-	# 3                   online              online              online
-	# ...
-
-	# Print the drive ID, slot ID, MDisk name and member ID of all drives
-        foreach my $drive ( $ibm->get_drives ) { 
-                print '-'x50, "\n";
-                print "Drive ID  : " . $drive->id . "\n";
-                print "Slot ID   : " . $drive->slot_id . "\n";
-                print "MDisk ID  : " . $drive->mdisk_name . "\n";
-                print "Member ID : " . $drive->member_id . "\n";
-        } 
-
-	# e.g.	
-	# --------------------------------------------------
-	# Drive ID  : 0
-	# Slot ID   : 17
-	# MDisk ID  : host-9
-	# Member ID : 3
-	# --------------------------------------------------
-	# Drive ID  : 1
-	# Slot ID   : 19
-	# MDisk ID  : host-2
-	# Member ID : 11
-	# --------------------------------------------------
-	# Drive ID  : 2
-	# Slot ID   : 19
-	# MDisk ID  : host-1
-	# Member ID : 8
-	# --------------------------------------------------
-	# ... etc.
-
+	# fs1                 silver_vol_00       up                  1                   
+	# fs1                 silver_vol_01       up                  1                   
+	# fs1                 silver_vol_02       up                  1                   
+	# fs1                 silver_vol_03       up                  1                   
+	# fs1                 silver_vol_04       up                  1                   
+	# fs1                 silver_vol_05       up                  1
 
 =head1 METHODS
 
