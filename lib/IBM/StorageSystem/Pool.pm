@@ -19,6 +19,28 @@ foreach my $attr ( map lc, @ATTR ) {
         }   
 }
 
+our $STATS = { 
+                throughput => {
+                        cmd     => '-g pool_throughput',
+                        class   => 'IBM::StorageSystem::Statistic::Pool::Throughput'
+                        },  
+};
+
+foreach my $stat ( keys %{ $STATS } ) { 
+        {   
+        no strict 'refs';
+        *{ __PACKAGE__ .'::'. $stat } = 
+        sub {
+                my( $self, $t ) = @_; 
+                $t ||= 'minute';
+                my $stats = $self->{__ibm}->__lsperfdata( cmd   => "$STATS->{$stat}->{cmd} -t $t -p $self->{'filesystem:name'}",
+                                                          class => $STATS->{$stat}->{class} 
+                                                        );  
+                return $stats
+        }   
+        }   
+}
+
 sub new {
         my( $class, $ibm, %args ) = @_; 
         my $self = bless {}, $class;
@@ -88,6 +110,14 @@ Returns the available space in full blocks.
 =head3 disk_list
 
 Returns a semi-colon separated list of the NSDs which are members of the file system pool.
+
+=head3 throughput( $time_period )
+
+Returns a L<IBM::StorageSystem::Statistic::Pool::Throughput> object containing pool throughput
+statistical and performance data for the specified period.
+
+Valid values for the timeperiod parameter are one of minute, hour, day, week, month, quarter 
+and year - if the timeperiod parameter is not specified it will default to minute.
 
 =head1 AUTHOR
 
