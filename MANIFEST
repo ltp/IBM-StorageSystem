@@ -36,6 +36,9 @@ lib/IBM/StorageSystem/Statistic/ClusterReadWriteOperations.pm
 lib/IBM/StorageSystem/Statistic/Node/CPU.pm
 lib/IBM/StorageSystem/Statistic/Node/Memory.pm
 lib/IBM/StorageSystem/Statistic/Node/Network.pm
+lib/IBM/StorageSystem/Statistic/Node/DiskRead.pm
+lib/IBM/StorageSystem/Statistic/Node/DiskWrite.pm
+lib/IBM/StorageSystem/Statistic/Pool/Throughput.pm
 lib/IBM/StorageSystem/StatisticsSet.pm
 lib/IBM/StorageSystem/Task.pm
 lib/IBM/StorageSystem/VDisk/Copy.pm
