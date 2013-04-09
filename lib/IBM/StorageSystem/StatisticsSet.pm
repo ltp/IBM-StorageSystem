@@ -4,11 +4,19 @@ use strict;
 use warnings;
 
 our $VERSION = '0.01';
+our $ITERATOR= 0;
 
 sub new {
 	my $class = shift;
 	my $self = bless {}, $class;
 	return $self
+}
+
+sub next {
+	my $self = shift;
+	defined @{ $self->{stats} }[$ITERATOR] or return undef;
+	$ITERATOR++;
+	return @{ $self->{stats} }[$ITERATOR - 1]
 }
 
 sub __push {
@@ -21,19 +29,19 @@ sub count {
 	return scalar @{ $self->{stats} }
 }
 
-sub __first {
+sub first {
 	my $self = shift;
 	return @{ $self->{stats} }[0]
 }
 
-sub __last {
+sub last {
 	my $self = shift;
 	return @{ $self->{stats} }[-1]
 }
 
 sub min {
 	my( $self, $value ) = @_;
-	grep { /$value/ } $self->__first->_values or return undef;
+	grep { /$value/ } $self->first->_values or return undef;
 	defined $self->{_data}->{$value} or $self->_sort( $value );
 
 	return wantarray	? @{ $self->{_data}->{$value} }
@@ -47,6 +55,37 @@ sub max {
 				: @{ $self->{_data}->{$value} }[-1]
 }
 
+sub avg {
+	my $self = shift;
+	my $d = {};
+	my $c = 0;
+
+	foreach my $s ( @{ $self->{stats} } ) {
+
+		foreach my $v ( keys %{ $s } ) {
+			next if $s->{$v} =~ /[a-zA-Z]/;
+			$s->{$v} =~ /\d+(\.{1}\d+)?/ or next;
+			$d->{$v} += $s->{$v};
+		}
+
+		$c++
+	}
+	
+	foreach my $v ( keys %{ $d } ) {
+		next unless $d->{$v};
+		$d->{$v} /= $c 
+	}
+
+	my $ref = ref( @{ $self->{stats} }[0]);
+	my $s = $ref->new;
+
+	for ( keys %{ $d } ) {
+		$s->$_( $d->{$_} )
+	}
+
+	return $s
+}
+
 sub _sort {
 	my( $self, $value ) = @_;
 	@{ $self->{_data}->{$value} }	= map { $_->[0] }
@@ -56,7 +95,7 @@ sub _sort {
 
 sub values {
 	my $self = shift;
-	return $self->__first->_values;
+	return $self->first->_values;
 }
 
 1;
@@ -136,6 +175,51 @@ sorted by the attribute parameter.
 This method is the logical complement of the B<min> method - the method returns either a 
 scalar or list as per the B<min> method but sorted via maximum value.
 Function 
+
+=head3 avg
+
+	# Print the average number of read operations for all disks
+
+	foreach $node ( $ibm->nodes ) {
+
+		my $stats = node->disk_reads->avg;
+
+		foreach my $v ( sort $node->disk_reads->values ) {
+			print "Disk $v average read operations: ", $stats->$v, "\n"
+		}
+	}
+
+	# Prints:
+	#
+	# Disk dm_0 average read operations: 0.0333333333333333
+	# Disk dm_1 average read operations: 0.0333333333333333
+	# Disk dm_10 average read operations: 0.0333333333333333
+	# Disk dm_11 average read operations: 0.0333333333333333
+	# Disk dm_12 average read operations: 0.0333333333333333
+	# ... etc.
+
+Returns a single IBM::StorageSystem statistics object containing averaged values for all objects
+in the StatisticsSet.  The returned object is blessed into the class of the objects of the set.
+
+=head3 first
+
+Returns the first object in the set.
+
+=head3 last
+
+Returns the last object in the set.
+
+=head3 next
+
+	# Print disk read operations for device 'dm-1'
+	my $read_stats = $node->disk_reads;
+
+	while ( my $stat = $read_stats->next ) {
+		printf("%-20s: %-10s\n", $stat->start_time, $stat->dm_1 )
+	}
+
+On initial invocation, returns the first object in the statistics set. On subsequent invocations, 
+returns the next statistic object in set.  Returns undef if no items remain.
 
 =head1 AUTHOR
 
