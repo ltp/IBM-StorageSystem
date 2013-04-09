@@ -7,19 +7,6 @@ use vars qw($AUTOLOAD);
 
 use Carp qw(croak);
 
-our @ATTR = qw(start_time end_time);
-
-foreach my $attr ( @ATTR ) { 
-        {   
-                no strict 'refs';
-                *{ __PACKAGE__ .'::'. $attr } = sub {
-                        my( $self, $val ) = @_; 
-                        $self->{$attr} = $val if $val;
-                        return $self->{$attr}
-                }   
-        }
-}
-
 sub AUTOLOAD {
 	my $self = shift or return undef;
 	( my $method = $AUTOLOAD ) =~ s/.*:://;
