@@ -38,7 +38,7 @@ use IBM::StorageSystem::Statistic::Pool::Throughput;
 use Net::OpenSSH;
 use Carp qw(croak);
 
-our $VERSION = '0.04';
+our $VERSION = '0.041';
 
 our @ATTR = qw(auth_service_cert_set auth_service_configured auth_service_enabled 
 auth_service_pwd_set auth_service_type auth_service_url auth_service_user_name 
@@ -514,7 +514,6 @@ sub __get_sl_objects {
 			my ($nid, $nval);
 
 			foreach my $id ( split /:/, $args{ id } ) {
-				print "id = $id, a{ id } = $a{ $id }\n";
 				$nid .= ":$id"; $nval .= ":$a{ $id }" 
 			}
 
