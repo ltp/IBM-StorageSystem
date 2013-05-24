@@ -1,8 +1,8 @@
 Revision history for IBM-StorageSystem
 
+0.043	Fri 25 Apr 2013 ltp@cpan.org
+	Removed non-ascii encoded char that was causing test failures.
+
 0.041	Thu 11 Apr 2013 ltp@cpan.org
 	Removed debugging statement.
-
-0.01    Date/time
-        First version, released on an unsuspecting world.
 
