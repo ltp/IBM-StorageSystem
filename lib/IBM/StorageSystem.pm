@@ -38,7 +38,7 @@ use IBM::StorageSystem::Statistic::Pool::Throughput;
 use Net::OpenSSH;
 use Carp qw(croak);
 
-our $VERSION = '0.043';
+our $VERSION = '0.044';
 
 our @ATTR = qw(auth_service_cert_set auth_service_configured auth_service_enabled 
 auth_service_pwd_set auth_service_type auth_service_url auth_service_user_name 
@@ -1570,9 +1570,9 @@ Returns an array of L<IBM::StorageSystem::Interface> objects representing all in
 	# Print mount status of file system fs1
 	print "Mount status: " . $ibm->mount(fs1) . "\n";
 
-	# Print only those file system that aren not mounted
+	# Print only those file system that are not mounted
 	map { print $_->file_system . " is not mounted.\n" }
-	grep { $_->mount_status ne ’mounted’ }
+	grep { $_->mount_status ne 'mounted' }
 	$ibm->get_mounts;
 
 Returns the mount identified by the mount parameter as a L<IBM::StorageSystem::Mount> object.

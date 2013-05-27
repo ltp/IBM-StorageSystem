@@ -1,5 +1,8 @@
 Revision history for IBM-StorageSystem
 
+0.044	Fri 27 Apr 2013 ltp@cpan.org
+	More ascii encoded madness with POD parsing.
+
 0.043	Fri 25 Apr 2013 ltp@cpan.org
 	Removed non-ascii encoded char that was causing test failures.
 
