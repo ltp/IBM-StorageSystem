@@ -38,7 +38,7 @@ use IBM::StorageSystem::Statistic::Pool::Throughput;
 use Net::OpenSSH;
 use Carp qw(croak);
 
-our $VERSION = '0.044';
+our $VERSION = '0.045';
 
 our @ATTR = qw(auth_service_cert_set auth_service_configured auth_service_enabled 
 auth_service_pwd_set auth_service_type auth_service_url auth_service_user_name 

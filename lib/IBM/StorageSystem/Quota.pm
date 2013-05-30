@@ -5,7 +5,7 @@ use warnings;
 
 use Carp qw(croak);
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 our @ATTR = qw(cluster device fileset type ID name SL_usage HL_usage used_usage 
 SL_inode HL_inode used_inode gracetime_usage gracetime_inode in_doubt_kB last_update);
 
@@ -31,7 +31,7 @@ sub new {
 		my $mattr = lc $attr;
 		$mattr =~ s/(\(|\))//g;
 
-		foreach my $s qw(id hl sl) {
+		foreach my $s ( qw(id hl sl) ) {
 			my $u = uc $s;
 			$mattr =~ s/(^|_)($s)/$1$u/g
 		}

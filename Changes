@@ -1,5 +1,8 @@
 Revision history for IBM-StorageSystem
 
+0.045	Fri 30 May 2013 ltp@cpan.org
+	Changed foreach qw() syntax for v5.18.0 tests.
+
 0.044	Fri 27 Apr 2013 ltp@cpan.org
 	More ascii encoded madness with POD parsing.
 

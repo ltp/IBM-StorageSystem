@@ -5,7 +5,7 @@ use warnings;
 
 use Carp qw(croak);
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 our @ATTR = qw(Node:Interface Node Interface MAC Master/Subordinate Bonding_mode 
 Transmit_hash_policy Up/Down Speed IP-Addresses MTU);
 
@@ -15,7 +15,7 @@ foreach my $attr ( @ATTR ) {
 		$mattr =~ s/\//_or_/g;
 		$mattr =~ s/-/_/g;
 
-		foreach my $s qw(ip mac mtu) {
+		foreach my $s ( qw(ip mac mtu) ) {
 			my $u = uc $s;
 			$mattr =~ s/(^|_)($s)/$1$u/g
 		}
@@ -42,7 +42,7 @@ sub new {
 		$mattr =~ s/\//_or_/g;
 		$mattr =~ s/-/_/g;
 
-		foreach my $s qw(ip mac mtu) {
+		foreach my $s ( qw(ip mac mtu) ) {
 			my $u = uc $s;
 			$mattr =~ s/(^|_)($s)/$1$u/g
 		}

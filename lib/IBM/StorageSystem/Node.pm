@@ -10,7 +10,7 @@ use IBM::StorageSystem::Statistic::Node::DiskWrite;
 use Carp qw(croak);
 use Scalar::Util qw(weaken);
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 our @ATTR = qw(	CTDB_status	connection_status	CTDB_IP_address		daemon_IP_address 
 		daemon_version	description		GPFS_status		hostname
 		IP		is_cache		is_manager		is_quorum 
@@ -57,7 +57,7 @@ foreach my $stat ( keys %{ $STATS } ) {
 	}
 }
 
-foreach my $m qw(reads writes) {
+foreach my $m ( qw(reads writes) ) {
 	{
 	no strict 'refs';
 	*{ __PACKAGE__ .'::disk_'. $m } = sub {
@@ -110,7 +110,7 @@ sub new {
 	foreach my $attr ( keys %args ) {
 		my $mattr = lc $attr;
 
-		foreach my $s qw(ctdb gpfs ip os) {
+		foreach my $s ( qw(ctdb gpfs ip os) ) {
 			my $u = uc $s;
 			$mattr =~ s/(^|_)($s)/$1$u/g
 		}
