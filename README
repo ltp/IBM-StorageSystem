@@ -11,21 +11,30 @@ SYNOPSIS
             use IBM::StorageSystem;
 
             # Create a IBM::StorageSystem object
-            my $ibm = IBM::StorageSystem->new(      
-                                            user            => 'admin',
-                                            host            => 'my-StorageSystem',
-                                            key_path        => '/path/to/my/.ssh/private_key'
+            my $ibm = IBM::StorageSystem->new(
+                                            user     => 'admin',
+                                            host     => 'my-StorageSystem',
+                                            key_path => '/path/to/my/.ssh/private_key'
                             ) or die "Couldn't create object! $!\n";
 
             # Get a list of our enclosures as IBM::StorageSystem::Enclosure objects
             my @enclosures = $ibm->get_enclosures;
 
             # Print the status of each enclosure
-            map { printf( "Enclosure %s status: %10s\n", $_->id, $_->status ) } @enclosures;
+            map { 
+                    printf( "Enclosure %s status: %10s\n",
+                                    $_->id,
+                                    $_->status 
+                    ) 
+            } @enclosures;
 
-            # Get the status of each PSU in each enclosure as IBM::StorageSystem::Enclsoure::PSU objects
-            map { printf( "\tPSU %s status: %s", $_->id, $_->status ) }
-                    map { print "--- Enclosure $_->id ---\n"; $ $_->get_psus } @enclosures;
+            # Get the status of each PSU in each enclosure as 
+            # IBM::StorageSystem::Enclosure::PSU objects
+            map { 
+                    printf( "\tPSU %s status: %s", $_->id, $_->status ) 
+            } map { 
+                    print "--- Enclosure $_->id ---\n"; $ $_->get_psus 
+            } @enclosures;
 
             # Prints something like:
             # --- Enclosure 1 ---
@@ -36,7 +45,8 @@ SYNOPSIS
             #     PSU 2 status: online
             # ...
 
-            # Get a list of canisters in the first enclosure as IBM::StorageSystem::Enclosure::Canister objects
+            # Get a list of canisters in the first enclosure as 
+            # IBM::StorageSystem::Enclosure::Canister objects
             my @canisters = $enclosures[0]->get_canisters;
 
             # Get the temperature of just the first canister in the second enclosure
@@ -47,10 +57,10 @@ SYNOPSIS
 
 METHODS
    new
-            my $ibm = IBM::StorageSystem->new(      
-                                            user            => 'admin',
-                                            host            => 'my-StorageSystem',
-                                            key_path        => '/path/to/my/.ssh/private_key'
+            my $ibm = IBM::StorageSystem->new(
+                                            user     => 'admin',
+                                            host     => 'my-StorageSystem',
+                                            key_path  => '/path/to/my/.ssh/private_key'
                             ) or die "Couldn't create object! $!\n";
 
     Constructor - creates a new IBM::StorageSystem object. This method
@@ -100,7 +110,7 @@ METHODS
     Specifies if the authentication password has been set.
 
    auth_service_type
-    returns the authentication services type, either; Tivoli Integrated
+    Returns the authentication services type, either; Tivoli Integrated
     Portal (TIP) or Native Lightweight Directory Access Protocol (LDAP)
 
    auth_service_url
@@ -238,7 +248,7 @@ METHODS
    tier_capacity
     Returns the total tier capacity for each tier type in the cluster.
 
-    Note that this method returns an array of tier capacity ivalues, the
+    Note that this method returns an array of tier capacity values, the
     index of which corresponds with the array indexes of tier types as
     returned by the tier method.
 
@@ -436,13 +446,13 @@ METHODS
 
    stats_threshold
     This method allows you specify the statistics threshold freshness
-    interval in seconds. This interval is used to determine if the value
-    sreturned by a statistics method are fresh or whether they should be
-    refreshed from the atregt system.
+    interval in seconds. This interval is used to determine if the values
+    returned by a statistics method are fresh or whether they should be
+    refreshed from the target system.
 
     By default this value is zero, meaning that the statistics are never
-    refreshed unless explicitly done so by calling the reefresh method of
-    the statistic object. This may result in a performance increase in
+    refreshed unless explicitly done so by calling the refresh method of the
+    statistic object. This may result in a performance increase in
     situations where statistic methods are frequently used, and may also
     result in more consistent reporting of the target system state as the
     statistic values will more closely represent a single point in time
@@ -464,7 +474,7 @@ METHODS
    cluster_throughput ( $interval )
     Returns either a single, or list, of IBM::StorageSystem::StatisticsSet
     objects containing IBM::StorageSystem::Statistics::ClusterThroughput
-    performance data on bytes read and written acorss all nodes and all GPFS
+    performance data on bytes read and written across all nodes and all GPFS
     filesystems in the cluster.
 
     The method accepts a single optional parameter; the time period for
@@ -558,7 +568,8 @@ METHODS
    array( $id )
             # Print the capacity and RAID level of array 1 in GB
             my $array = $ibm->array( 1 );
-            print "Array 1 capacity: " . int ( $array->capacity / ( 1024 ** 3 ) )
+            print "Array 1 capacity: " 
+                    . int ( $array->capacity / ( 1024 ** 3 ) )
                     . " (" . $array->raid_level . ")\n"
 
             # e.g. Array 1 capacity: 5824G (raid10)
@@ -572,7 +583,7 @@ METHODS
 
    get_array( $id )
     Returns the array specified by the value of the numerical ID argument as
-    an IBM::StorageSystem:Array object.
+    an IBM::StorageSystem::Array object.
 
     Note that this method is non-caching and the array information will
     always be retrieved from the StorageSystem system even if a cached
@@ -580,13 +591,16 @@ METHODS
 
    get_arrays
             # Print the array status of all arrays in our system
-            map { print "Array ", $_->mdisk_id, " status ", $_->status, "\n" } $ibm->get_arrays;
+            map { 
+                    print "Array ", $_->mdisk_id, " status ", $_->status, "\n"
+            } $ibm->get_arrays;
 
     Returns an array of IBM::StorageSystem::Array objects representing all
     arrays in the target system.
 
    disk ( $id )
-            # Get the disk named "system_vol_00" as an IBM::StorageSystem::Disk object
+            # Get the disk named "system_vol_00" as an IBM::StorageSystem::Disk 
+            # object
             my $disk = $ibm->disk(system_vol_00);
         
             # Print the disk status
@@ -604,11 +618,18 @@ METHODS
     method.
 
    get_disks
-            # Print a listing of all disks in the target system including their name, the assigned pool and status
+            # Print a listing of all disks in the target system including their 
+            # name, the assigned pool and status
 
             printf( "%-20s%-20s%-20s\n", "Name", "Pool", "Status" );
             printf( "%-20s%-20s%-20s\n", "-----", "------", "-------" );
-            foreach my $disk ( $ibm->get_disks ) { printf( "%-20s%-20s%-20s\n", $disk->name, $disk->pool, $disk->status ) }
+
+            foreach my $disk ( $ibm->get_disks ) { 
+                    printf( "%-20s%-20s%-20s\n", 
+                            $disk->name, 
+                            $disk->pool, 
+                            $disk->status ) 
+            }
 
             # Prints something like:
             #
@@ -633,7 +654,8 @@ METHODS
             print $ibm->drive( 2 )->capacity;
 
             # Print the drive vendor and product IDs
-            print "Vendor ID: ", $drive->vendor_id, " - Product ID: ", $drive->product_id, "\n";
+            print "Vendor ID: ", $drive->vendor_id, 
+                    " - Product ID: ", $drive->product_id, "\n";
 
     Returns the drive specified by the value of the integer argument as a
     IBM::StorageSystem::Drive object.
@@ -650,10 +672,29 @@ METHODS
     target system even if a cached object is present.
 
    get_drives( $id )
-            # Print the SAS port status and drive status for all drives in a nicely formatted list
-            printf("%-20s%-20s%-20s%-20s\n", 'Drive', 'SAS Port 1 Status', 'SAS Port 2 Status', 'Status');
-            printf("%-20s%-20s%-20s%-20s\n", '-'x18, '-'x18, '-'x18, '-'x18);
-            map { printf( "%-20s%-20s%-20s%-20s\n", $_->id, $_->port_1_status, $_->port_2_status, $_->status) } $ibm->get_drives;
+            # Print the SAS port status and drive status for all drives in a 
+            # nicely formatted list
+            printf( "%-20s%-20s%-20s%-20s\n", 
+                    'Drive', 
+                    'SAS Port 1 Status', 
+                    'SAS Port 2 Status', 
+                    'Status'
+            );
+
+            printf( "%-20s%-20s%-20s%-20s\n", 
+                    '-'x18, 
+                    '-'x18, 
+                    '-'x18, 
+                    '-'x18
+            );
+
+            map { 
+                    printf( "%-20s%-20s%-20s%-20s\n", 
+                            $_->id, 
+                            $_->port_1_status, 
+                            $_->port_2_status, 
+                            $_->status ) 
+            } $ibm->get_drives;
 
             # e.g.
             # Drive               SAS Port 1 Status   SAS Port 2 Status   Status              
@@ -668,12 +709,14 @@ METHODS
 
    enclosure( $id )
             # Print the status of a specific enclosure
-            print "Enclosure two status is " . $ibm->enclosure(2)->status . "\n";
+            print "Enclosure two status is " 
+                    . $ibm->enclosure(2)->status . "\n";
 
-            # Get all PSUs in an enclosure as L<IBM::StorageSystem::Enclosure::PSU> objects.
+            # Get all PSUs in an enclosure as 
+            # IBM::StorageSystem::Enclosure::PSU objects.
             my @psus = $ibm->enclosure(1)->psus;
 
-    Returns the enclosure specified by the numerical identifer of the id
+    Returns the enclosure specified by the numerical identifier of the id
     parameter as an IBM::StorageSystem::Enclosure object.
 
     Note that this is a caching method and that a cached object will be
@@ -687,21 +730,32 @@ METHODS
    get_enclosures
             # Print the status of each enclosure in our system.
             foreach my $enclosure ( $ibm->get_enclosures ) {
-                    print "Enclosure ", $enclosure->id, " status: ", $enclosure->status, "\n"
+                    print "Enclosure ", $enclosure->id, 
+                            " status: ", $enclosure->status, "\n"
             }
 
     Returns an array of IBM::StorageSystem::Enclosure objects representing
-    all enclosures present in teh target system.
+    all enclosures present in the target system.
 
    get_exports
-            # Print a listing of all configured exports containing the export name, the export path,
-            # the export protocol and the export status.
+            # Print a listing of all configured exports containing the export 
+            # name, the export path, the export protocol and the export status.
 
-            printf( "%-20s%-40s%-10s%-10s\n", 'Name', 'Path', 'Protocol', 'Active' );
+            printf( "%-20s%-40s%-10s%-10s\n", 
+                    'Name', 
+                    'Path', 
+                    'Protocol', 
+                    'Active' 
+            );
 
             foreach my $export ( $ibm->get_exports ) { 
                     print '-'x100,"\n";
-                    printf( "%-20s%-40s%-10s%-10s\n", $export->name, $export->path, $export->protocol, $export->active )
+                    printf( "%-20s%-40s%-10s%-10s\n", 
+                            $export->name, 
+                            $export->path, 
+                            $export->protocol, 
+                            $export->active 
+                    )
             }
 
             # Prints something like:
@@ -720,15 +774,32 @@ METHODS
     IBM::StorageSystem::Export objects.
 
    get_fabrics
-            # Print a list of our fabrics (sorted by fabric ID) including the fabric ID, node ID, port ID,
-            # local WWPN, remote WWPN and fabric status.
+            # Print a list of our fabrics (sorted by fabric ID) including the 
+            # fabric ID, node ID, port ID, local WWPN, remote WWPN and fabric 
+            # status.
 
-            printf( "%-5s%-8s%-8s%-20s%-20s%-10s\n", 'ID', 'Node', 'Port', 'Local WWPN', 'Remote WWPN', 'Status');
+            printf( "%-5s%-8s%-8s%-20s%-20s%-10s\n", 
+                    'ID', 
+                    'Node', 
+                    'Port', 
+                    'Local WWPN', 
+                    'Remote WWPN', 
+                    'Status'
+            );
             print '-'x80,"\n";
 
-            for my $fabric ( map { $_->[0] } sort { $a->[1] cmp $b->[1] } map { [$_, $_->id] } $ibm->get_fabrics ) {
-                    printf( "%-5s%-8s%-8s%-20s%-20s%-10s\n", $fabric->id, $fabric->node_name, $fabric->local_port,
-                            $fabric->local_wwpn, $fabric->remote_wwpn, $fabric->state )
+            for my $fabric ( map { $_->[0] } 
+                             sort { $a->[1] cmp $b->[1] } 
+                             map { [$_, $_->id] } $ibm->get_fabrics 
+                    ) {
+                    printf( "%-5s%-8s%-8s%-20s%-20s%-10s\n", 
+                            $fabric->id, 
+                            $fabric->node_name, 
+                            $fabric->local_port,
+                            $fabric->local_wwpn, 
+                            $fabric->remote_wwpn, 
+                            $fabric->state 
+                    )
             }
 
             # Prints something like:
@@ -753,7 +824,8 @@ METHODS
             # Print the mount point of this file system
             print "fs2 mount point: " . $fs->mount_point . "\n";
 
-            # Call a function if inode usage on file system 'fs2' exceeds 90% of maximum allocation.
+            # Call a function if inode usage on file system 'fs2' exceeds 90% of 
+            # maximum allocation.
             monitoring_alert( 'Inode allocation > 90% on '.$filesystem->device_name ) 
                     if ( ( ( $fs->inodes / $fs->max_inodes ) * 100 ) > 90 );
 
@@ -772,16 +844,22 @@ METHODS
 
    get_filesystems
             # Do the same for all file systems
-            map { monitoring_alert( 'Inode allocation > 90% on '.$_->device_name )
-                    if ( ( ( $fs->inodes / $fs->max_inodes ) * 100 ) > 90 ) } $ibm->get_filesystems;
+            map { 
+                    monitoring_alert( 'Inode allocation > 90% on '.$_->device_name )
+                    if ( ( ( $fs->inodes / $fs->max_inodes ) * 100 ) > 90 ) 
+            } $ibm->get_filesystems;
 
-    Returns an array of IBM::StorageSystem:FileSystem objects representing
+    Returns an array of IBM::StorageSystem::FileSystem objects representing
     all configured file systems on the target system.
 
    get_healths
-            # Simple one-liner to print the sensor status and value for any error conditions.
-            map { print join ' -> ', ( $_->sensor, $_->value."\n" ) } 
-                    grep { $_->status =~ /ERROR/ } $ibm->get_healths;
+            # Simple one-liner to print the sensor status and value for any error 
+            # conditions.
+            map { 
+                    print join ' -> ', ( $_->sensor, $_->value."\n" ) 
+            } grep { 
+                    $_->status =~ /ERROR/ 
+            } $ibm->get_healths;
 
             # e.g.
             # CLUSTER -> Alert found in component cluster
@@ -810,16 +888,20 @@ METHODS
     method.
 
    get_hosts
-            # Print a list of all configured hosts sorted by hostname, their WWPNs,
-            # port state and login status.
+            # Print a list of all configured hosts sorted by hostname, their 
+            # WWPNs, port state and login status.
 
-            foreach $host ( map { $_->[0] } sort { $a->[1] cmp $b->[1] } map { [ $_, $_->name ] } $ibm->get_hosts ) { 
+            foreach $host ( map { $_->[0] } 
+                            sort { $a->[1] cmp $b->[1] } 
+                            map { [ $_, $_->name ] } $ibm->get_hosts 
+                    ) { 
                     my $c = 0;
 
                     foreach $wwpn ( @{ $host->WWPN } ) { 
                             print ( $c ? "\t" : ('-'x100)."\n".$host->name );
                             print "\t\t\t$wwpn\t" . @{ $host->state }[$c] . "\t\t" .
-                                    ( @{$host->node_logged_in_count }[$c] ? '' : 'not ' ) . "logged in\n";
+                                    ( @{$host->node_logged_in_count }[$c] ? '' : 'not ' ) 
+                                    . "logged in\n";
                             $c++
                     }   
             }
@@ -853,7 +935,7 @@ METHODS
     parameter as an IBM::StorageSystem::IOGroup object.
 
     Note that this method implements caching and a cached object will be
-    returned shoudl one be present. If you require a non-cached object then
+    returned should one be present. If you require a non-cached object then
     please use the get_iogroup method.
 
    get_iogroup( $id )
@@ -861,9 +943,9 @@ METHODS
     iogroup method.
 
    get_iogroups
-            # Print a formatted listing of all I/O groups by ID and name, along with
-            # their VDisk count, host count, node count and maintenance state.
-            map { printf("%-8s%-20s%-20s%-20s%-20s%-20s\n", 
+            # Print a formatted listing of all I/O groups by ID and name, along 
+            # with their VDisk count, host count, node count and maintenance state.
+            map { printf( "%-8s%-20s%-20s%-20s%-20s%-20s\n", 
                     $_->id,
                     $_->name,
                     $_->vdisk_count,
@@ -885,7 +967,8 @@ METHODS
     configured I/O groups on the target system.
 
    interface ( $id )
-            # Get interface ethX0 on management node mgmt001st001 as an IBM::StorageSystem::Interface object
+            # Get interface ethX0 on management node mgmt001st001 as an 
+            # IBM::StorageSystem::Interface object
             # Print the interface status
             print $interface->up_or_down;
 
@@ -902,7 +985,7 @@ METHODS
     separated by a colon.
 
     Note that this method implements caching and a cached object will be
-    returned shoudl one be present. If you require a non-cached object then
+    returned should one be present. If you require a non-cached object then
     please use the get_iogroup method.
 
    get_interface( $id )
@@ -916,18 +999,9 @@ METHODS
                     print "Interface: " . $interface->interface . "\n";
                     print "\tStatus: " . $interface->up_or_down . "\n";
                     print "\tSpeed: " . $interface->speed . "\n";
-                    print "\tRole: " . $interface->isubordinate_or_master . "\n----------\n";
+                    print "\tRole: " . $interface->isubordinate_or_master 
+                            . "\n----------\n";
             }
-        
-                     'node:interface' => 'mgmt002st001:ethXsl1_1',
-                     'MAC' => '00%3A90%3Afa%3A05%3A88%3A9e',
-                     'IPaddresses' => '',
-                     'MTU' => '1500',
-                     'up_or_down' => 'UP',
-                     'lsnwinterface' => 'lsnwinterface',
-                     'speed' => '10000',
-                     'master_or_subordinate' => 'SUBORDINATE',
-                     'transmit_hash_policy' => ''
 
     Returns an array of IBM::StorageSystem::Interface objects representing
     all interfaces on the target system.
@@ -937,7 +1011,7 @@ METHODS
             print "Mount status: " . $ibm->mount(fs1) . "\n";
 
             # Print only those file system that are not mounted
-            map { print $_->file_system . " is not mounted.\n" }
+            map  { print $_->file_system . " is not mounted.\n" }
             grep { $_->mount_status ne 'mounted' }
             $ibm->get_mounts;
 
@@ -945,7 +1019,7 @@ METHODS
     IBM::StorageSystem::Mount object.
 
     Note that this method implements caching and a cached object will be
-    returned shoudl one be present. If you require a non-cached object then
+    returned should one be present. If you require a non-cached object then
     please use the get_iogroup method.
 
    get_mount( $mount )
@@ -979,9 +1053,10 @@ METHODS
     method.
 
    get_nodes
-            # Print the GPFS and CTDB stati of all nodes
+            # Print the GPFS and CTDB statuses of all nodes
             foreach my $node ( $ibm->get_nodes ) {
-                    print "GPFS status: " . $node->GPFS_status . " - CTDB status: " . $node->CTDB_status . "\n"
+                    print "GPFS status: " . $node->GPFS_status 
+                            . " - CTDB status: " . $node->CTDB_status . "\n"
             }
 
     Returns an array of IBM::StorageSystem::Node objects representing all
@@ -1019,24 +1094,29 @@ METHODS
             use Date::Calc qw(date_to_Time Today_and_Now);
 
             my $ibm = IBM::StorageSystem->new(      
-                                            user            => 'admin',
-                                            host            => 'my-v7000',
-                                            key_path        => '/path/to/my/.ssh/private_key'
+                                            user     => 'admin',
+                                            host     => 'my-v7000',
+                                            key_path => '/path/to/my/.ssh/private_key'
                                     ) or die "Couldn't create object! $!\n";
 
             # Generate an alert for any replication errors in the last six hours
 
             foreach my $task ( $ibm->get_replications ) {
 
-                    if ( $task->status eq 'ERROR' and ( Date_to_Time( Today_and_Now ) 
-                            - ( Date_to_Time( split /-| |\./, $task->time ) ) ) < 21_600 ) {
-                            alert( "Replication failure for filesystem " . $task->filesystem . 
-                                    " - log ID: " . $task->log_id . )
+                    if ( $task->status eq 'ERROR' 
+                            and ( Date_to_Time( Today_and_Now ) - 
+                                    ( Date_to_Time( split /-| |\./, $task->time ) ) 
+                            ) < 21_600 
+                    ) {
+                            alert( "Replication failure for filesystem " 
+                                    . $task->filesystem . " - log ID: " 
+                                    . $task->log_id . 
+                            )
                     }
 
             }
 
-    Returns all asynchornous replication tasks as an array of
+    Returns all asynchronous replication tasks as an array of
     IBM::StorageSystem::Replication objects.
 
    service( $service )
@@ -1045,7 +1125,13 @@ METHODS
 
             # Print the configured and enabled status of all services
             printf( "%-20s%-20s%-20s\n", 'Service', 'Configured', 'Active' );
-            map { printf( "%-20s%-20s%-20s\n", $_->name, $_->configured, $_->active ) } $ibm->get_services;
+            map { 
+                    printf( "%-20s%-20s%-20s\n",
+                            $_->name,
+                            $_->configured,
+                            $_->active 
+                    )
+            } $ibm->get_services;
 
     Returns a IBM::StorageSystem::Service object representing the service
     identified by the value of the service parameter.
@@ -1109,12 +1195,32 @@ METHODS
     vdisk method.
 
    get_vdisks
-            # Print the name, ID, capacity in GB and MDisk group name of all VDisks in a
-            # nicely formatted output
-            printf( "%-20s%-8s%-15s%20s\n", 'Name', 'ID', 'Capacity (GB)', 'MDisk Group Name' );
-            printf( "%-20s%-8s%-15s%20s\n", '-'x18, '-'x4, '-'x12, '-'x15 );
-            map { printf( "%-20s%-8s%-15s%20s\n", $_->name, $_->id, (int($_->capacity / (1024**3))), $_->mdisk_grp_name) } 
-            grep { $_->status eq 'online' } $ibm->get_vdisks;
+            # Print the name, ID, capacity in GB and MDisk group name of all 
+            # VDisks in a nicely formatted output
+            printf( "%-20s%-8s%-15s%20s\n", 
+                    'Name',
+                    'ID',
+                    'Capacity (GB)',
+                    'MDisk Group Name'
+            );
+
+            printf( "%-20s%-8s%-15s%20s\n", 
+                    '-'x18,
+                    '-'x4,
+                    '-'x12,
+                    '-'x15 
+            );
+
+            map { 
+                    printf( "%-20s%-8s%-15s%20s\n", 
+                            $_->name, 
+                            $_->id, 
+                            (int($_->capacity / (1024**3))), 
+                            $_->mdisk_grp_name
+                    )
+            } grep { 
+                    $_->status eq 'online' 
+            } $ibm->get_vdisks;
 
             # Should print something like:
             # Name                ID      Capacity (GB)      MDisk Group Name
@@ -1127,12 +1233,12 @@ METHODS
     IBM::StorageSystem::VDisk objects.
 
    get_quotas
-            # Call a function to send a quota warning email for any quotas where the current
-            # usage exceeds 85% of the quota usage hard limit.
+            # Call a function to send a quota warning email for any quotas where 
+            # the current usage exceeds 85% of the quota usage hard limit.
 
-            map  { send_quota_warning_email( $_ ) }
+            map  { send_quota_warning_email( $_ )           }
             grep { ( $_->used_usage / $_->HL_usage ) > 0.85 }
-            grep { $_->name ne 'root' }
+            grep { $_->name ne 'root'                       }
             grep { $_->type eq 'U' } $ibm->get_quotas;
 
     Returns all quotas defined on the target system as an array of
@@ -1171,7 +1277,6 @@ SUPPORT
 
         <http://search.cpan.org/dist/IBM-StorageSystem/>
 
-ACKNOWLEDGEMENTS
 LICENSE AND COPYRIGHT
     Copyright 2012 Luke Poskitt.
 
